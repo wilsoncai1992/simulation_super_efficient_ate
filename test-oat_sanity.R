@@ -10,11 +10,14 @@ do_once <- function(n_sim) {
   data_sim <- simulate_data(n_sim = n_sim, a1 = a1, a2 = a2, b1 = b1)
   Psi_0 <- 1
 
-  result_oat <- fit_tmle_ate(data_sim, is_oat = TRUE)
-  result_onestep <- fit_onestep(data_sim, is_oat = TRUE)
-  result_tmle <- fit_tmle_ate(data_sim, is_oat = FALSE)
-  result_oat_oracle_ci <- oracle_ci_tmle_ate(data_sim)
-  result_onestep_oracle_ci <- oracle_ci_onestep(data_sim)
+  result_oat <- fit_tmle_ate(data_sim, is_oat = TRUE, cv_variance = FALSE)
+  result_oat_cv_variance <- fit_tmle_ate(data_sim, is_oat = TRUE, cv_variance = TRUE)
+  result_onestep <- fit_onestep(data_sim, is_oat = TRUE, cv_variance = FALSE)
+  result_onestep_cv_variance <- fit_onestep(data_sim, is_oat = TRUE, cv_variance = TRUE)
+  result_tmle <- fit_tmle_ate(data_sim, is_oat = FALSE, cv_variance = FALSE)
+  result_tmle_cv_variance <- fit_tmle_ate(data_sim, is_oat = FALSE, cv_variance = TRUE)
+  # result_oat_oracle_ci <- oracle_ci_tmle_ate(data_sim)
+  # result_onestep_oracle_ci <- oracle_ci_onestep(data_sim)
 
   df_simulation_result <- list()
   i <- 1
@@ -22,16 +25,19 @@ do_once <- function(n_sim) {
     result_oat, Psi_0, "oat"
   ); i <- i + 1
   df_simulation_result[[i]] <- compute_metric(
-    result_oat_oracle_ci, Psi_0, "oat_oracle_ci"
+    result_oat_cv_variance, Psi_0, "oat_cv_variance"
   ); i <- i + 1
   df_simulation_result[[i]] <- compute_metric(
     result_onestep, Psi_0, "onestep"
   ); i <- i + 1
   df_simulation_result[[i]] <- compute_metric(
-    result_onestep_oracle_ci, Psi_0, "onestep_oracle_ci"
+    result_onestep_cv_variance, Psi_0, "onestep_cv_variance"
   ); i <- i + 1
   df_simulation_result[[i]] <- compute_metric(
     result_tmle, Psi_0, "tmle"
+  ); i <- i + 1
+  df_simulation_result[[i]] <- compute_metric(
+    result_tmle_cv_variance, Psi_0, "tmle_cv_variance"
   ); i <- i + 1
 
   df_simulation_result <- do.call(rbind, df_simulation_result)
@@ -58,6 +64,7 @@ clusterSize(cl) # just to check
 a1 <- .5
 b1 <- 3
 a2 <- .1
+# n_grid <- c(1e2)
 n_grid <- c(1e2, 1e3)
 # n_grid <- c(1e2, 1e3, 1e4)
 df_simulation_result <- foreach(
@@ -72,6 +79,23 @@ df_simulation_result <- foreach(
     do_once(n_sim = n_sim)
   }
 head(df_simulation_result)
+
+create_result_for_oracle_ci <- function(df_simulation_result, method = "oat") {
+  df_result <- df_simulation_result[df_simulation_result$method == method, ]
+  sd_oracle <- sd(df_result$bias)
+  df_result$is_cover <- abs(df_result$bias) <= 1.96 * sd_oracle
+  df_result$method <- paste(method, "_oracle_ci", sep = "")
+  return(df_result)
+}
+df_simulation_result <- rbind(
+  df_simulation_result, 
+  create_result_for_oracle_ci(df_simulation_result, "oat")
+)
+df_simulation_result <- rbind(
+  df_simulation_result, 
+  create_result_for_oracle_ci(df_simulation_result, "onestep")
+)
+
 df_mc_result <- df_simulation_result %>%
   group_by(method, n) %>%
   summarize(
