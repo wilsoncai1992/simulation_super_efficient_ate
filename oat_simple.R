@@ -99,15 +99,15 @@ get_prevalidated_array <- function(
     # fit g
     if (is_oat) {
       # use training data from the whole fit of the training data
-      df_w_g <- data.frame(hal_fit$qn_1w, hal_fit$qn_0w)
-      Y_g <- data_sim$A
+      # df_w_g <- data.frame(hal_fit$qn_1w, hal_fit$qn_0w)
+      # Y_g <- data_sim$A
 
       # use training data from just the fit on the training fold
-      # qn_1w_train <- predict(hal_q, new_data = data.frame(A = 1, W = data_train$W))
-      # qn_0w_train <- predict(hal_q, new_data = data.frame(A = 0, W = data_train$W))
-      # qn_aw_train <- predict(hal_q, new_data = data.frame(A = data_train$A, W = data_train$W))
-      # df_w_g <- data.frame(qn_1w_train, qn_0w_train)
-      # Y_g <- data_train$A
+      qn_1w_train <- predict(hal_q, new_data = data.frame(A = 1, W = data_train$W))
+      qn_0w_train <- predict(hal_q, new_data = data.frame(A = 0, W = data_train$W))
+      qn_aw_train <- predict(hal_q, new_data = data.frame(A = data_train$A, W = data_train$W))
+      df_w_g <- data.frame(qn_1w_train, qn_0w_train)
+      Y_g <- data_train$A
 
       hal_g <- hal9001::fit_hal_single_lambda(
         X = df_w_g,
