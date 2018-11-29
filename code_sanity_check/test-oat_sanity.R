@@ -76,8 +76,3 @@ save(
 )
 closeCluster(cl)
 # stopCluster(cl)
-
-# # prevalidated prediction
-# hal_q$hal_lasso$fit.preval
-# lambda_min_index <- which(hal_q$hal_lasso$lambda == hal_q$hal_lasso$lambda.min)
-# yhat_validation <- hal_q$hal_lasso$fit.preval[, lambda_min_index]
