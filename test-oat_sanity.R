@@ -10,17 +10,17 @@ source("./david_testsim.R")
 N_SIMULATION <- 1e3
 # N_SIMULATION <- 8
 library(foreach)
-# library(Rmpi)
-# library(doMPI)
-# cl = startMPIcluster()
-# registerDoMPI(cl)
-# clusterSize(cl) # just to check
+library(Rmpi)
+library(doMPI)
+cl = startMPIcluster()
+registerDoMPI(cl)
+clusterSize(cl) # just to check
 
-library(doSNOW)
-library(tcltk)
-nw <- parallel:::detectCores()  # number of workers
-cl <- makeSOCKcluster(nw)
-registerDoSNOW(cl)
+# library(doSNOW)
+# library(tcltk)
+# nw <- parallel:::detectCores()  # number of workers
+# cl <- makeSOCKcluster(nw)
+# registerDoSNOW(cl)
 
 # n_sim <- 1e3
 a1 <- .5
@@ -74,8 +74,8 @@ save(
   df_simulation_result,
   file = paste("df_mc_result.rda", sep = "")
 )
-# closeCluster(cl)
-stopCluster(cl)
+closeCluster(cl)
+# stopCluster(cl)
 
 # # prevalidated prediction
 # hal_q$hal_lasso$fit.preval
