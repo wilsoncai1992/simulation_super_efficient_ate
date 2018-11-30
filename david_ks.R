@@ -80,38 +80,84 @@ do_once <- function(x, n){
 
     ## format output
     # could include cvtmle and cvone-step in here as well
+
+    # diff(rslt_cvtmle_std[2:3]) / 1.96 / 2
+    # diff(rslt_cvaiptw_std[2:3]) / 1.96 / 2
+    # diff(rslt_cvoat_tmle_std[2:3]) / 1.96 / 2
+    # diff(rslt_cvoat_aiptw_std[2:3]) / 1.96 / 2
+
     df_result <- list()
     df_result <- c(
       df_result,
-      list(data.frame(method = 'tmle', Psi = rslt_tmle_std[1], is_cover = between(1, rslt_tmle_std[2], rslt_tmle_std[3])))
+      list(data.frame(
+        method = "tmle",
+        Psi = rslt_tmle_std[1],
+        sd = diff(rslt_tmle_std[2:3]) / 1.96 / 2,
+        is_cover = between(Psi_0, rslt_tmle_std[2], rslt_tmle_std[3])
+      ))
     )
     df_result <- c(
         df_result,
-        list(data.frame(method = 'tmle_cv_variance', Psi = rslt_tmle_std[1], is_cover = between(1, rslt_tmle_std_cvci[1], rslt_tmle_std_cvci[2])))
+        list(data.frame(
+          method = "tmle_cv_variance",
+          Psi = rslt_tmle_std[1],
+          sd = diff(rslt_tmle_std_cvci) / 1.96 / 2,
+          is_cover = between(Psi_0, rslt_tmle_std_cvci[1], rslt_tmle_std_cvci[2])
+        ))
     )
     df_result <- c(
         df_result,
-        list(data.frame(method = 'onestep', Psi = rslt_aiptw_std[1], is_cover = between(1, rslt_aiptw_std[2], rslt_aiptw_std[3])))
+        list(data.frame(
+          method = "onestep",
+          Psi = rslt_aiptw_std[1],
+          sd = diff(rslt_aiptw_std[2:3]) / 1.96 / 2,
+          is_cover = between(Psi_0, rslt_aiptw_std[2], rslt_aiptw_std[3])
+        ))
     )
     df_result <- c(
         df_result,
-        list(data.frame(method = 'onestep_cv_variance', Psi = rslt_aiptw_std[1], is_cover = between(1, rslt_aiptw_std_cvci[1], rslt_aiptw_std_cvci[2])))
+        list(data.frame(
+          method = "onestep_cv_variance",
+          Psi = rslt_aiptw_std[1],
+          sd = diff(rslt_aiptw_std_cvci) / 1.96 / 2,
+          is_cover = between(Psi_0, rslt_aiptw_std_cvci[1], rslt_aiptw_std_cvci[2])
+        ))
     )
     df_result <- c(
         df_result,
-        list(data.frame(method = 'oat', Psi = rslt_oat_tmle_std[1], is_cover = between(1, rslt_oat_tmle_std[2], rslt_oat_tmle_std[3])))
+        list(data.frame(
+          method = "oat",
+          Psi = rslt_oat_tmle_std[1],
+          sd = diff(rslt_oat_tmle_std[2:3]) / 1.96 / 2,
+          is_cover = between(Psi_0, rslt_oat_tmle_std[2], rslt_oat_tmle_std[3])
+        ))
     )
     df_result <- c(
         df_result,
-        list(data.frame(method = 'oat_cv_variance', Psi = rslt_oat_tmle_std[1], is_cover = between(1, rslt_oat_tmle_std_cvci[1], rslt_oat_tmle_std_cvci[2])))
+        list(data.frame(
+          method = "oat_cv_variance",
+          Psi = rslt_oat_tmle_std[1],
+          sd = diff(rslt_oat_tmle_std_cvci) / 1.96 / 2,
+          is_cover = between(Psi_0, rslt_oat_tmle_std_cvci[1], rslt_oat_tmle_std_cvci[2])
+        ))
     )
     df_result <- c(
         df_result,
-        list(data.frame(method = 'onestep_oat', Psi = rslt_oat_aiptw_std[1], is_cover = between(1, rslt_oat_aiptw_std[2], rslt_oat_aiptw_std[3])))
+        list(data.frame(
+          method = "onestep_oat",
+          Psi = rslt_oat_aiptw_std[1],
+          sd = diff(rslt_oat_aiptw_std[2:3]) / 1.96 / 2,
+          is_cover = between(Psi_0, rslt_oat_aiptw_std[2], rslt_oat_aiptw_std[3])
+        ))
     )
     df_result <- c(
         df_result,
-        list(data.frame(method = 'onestep_oat_cv_variance', Psi = rslt_oat_aiptw_std[1], is_cover = between(1, rslt_oat_aiptw_std_cvci[1], rslt_oat_aiptw_std_cvci[2])))
+        list(data.frame(
+          method = "onestep_oat_cv_variance",
+          Psi = rslt_oat_aiptw_std[1],
+          sd = diff(rslt_oat_aiptw_std_cvci) / 1.96 / 2,
+          is_cover = between(Psi_0, rslt_oat_aiptw_std_cvci[1], rslt_oat_aiptw_std_cvci[2])
+        ))
     )
     df_result <- do.call(rbind, df_result)
     rownames(df_result) <- NULL
