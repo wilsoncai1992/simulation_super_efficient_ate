@@ -120,8 +120,6 @@ oat_hal <- function(W, A, Y, V = 10, outcome_family = "gaussian",
                       cv_Q0W = Q0W_cv_cvselect,
                       cv_G1W = G1W_cv_cvselect,
                       cv_GQW = as.numeric(GQW_cv_cvselect),
-                      lambda_or = lambda_seq[lambda_or_idx],
-                      lambda_ps = lambda_seq[lambda_ps_idx],
                       fold_vec = fold_vec)
 
     return(out)
@@ -311,7 +309,7 @@ mod_ks <- function(n){
     W <- make_W_from_Z(Z)
 
     # output
-    out <- list(W = W, A = A, Y = Y, Q1 = Q1W, Q0 = Q0W, pw = G)
+    out <- list(W = W, A = A, Y = Y)
 }
 
 #' Helper function to go from Z to W in Kang and Schafer set up
