@@ -5,7 +5,8 @@ do_once <- function(x, n){
     # output is a data.frame with nuisance estimators evaluated at observed
     # data and a vector of CV-folds
     nuisance <- oat_hal(W = dat$W, A = dat$A, Y = dat$Y,
-                        V = 5, lambda_seq = exp(seq(-1,-8, length = 2000)))
+                        # V = 5, lambda_seq = exp(seq(-1,-8, length = 2000)))
+                        V = 5, lambda_seq = exp(seq(-1,-8, length = 1e2)))
     ## pump results into drtmle
     # this fit will yield the standard tmle and one-step estimators/ci's
     tmle_std <- drtmle::drtmle(Y = dat$Y, A = dat$A, W = dat$W,

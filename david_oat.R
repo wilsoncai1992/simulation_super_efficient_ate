@@ -168,6 +168,16 @@ one_hal <- function(fold, fold_vec, outcome_family = "gaussian",
     # subset to non-duplicated columns
     x_basis_fit <- x_basis[, unique_columns]
 
+    # fit outcome regression
+    hal_lasso <- glmnet::glmnet(x = x_basis_fit, y = y_fit,
+        family = outcome_family, lambda = lambda_seq,
+        standardize = FALSE)
+    # get outcome regression predictions
+    beta_hat <- as.matrix(hal_lasso$beta)
+    # intercept
+    alpha_hat <- hal_lasso$a0
+    rm(x_basis, x_basis_fit)
+    gc()
     # for propensity
     basis_list2 <- hal9001::enumerate_basis(x2_fit, NULL)
     x_basis2 <- hal9001:::make_design_matrix(x2_fit, basis_list2)
@@ -175,14 +185,15 @@ one_hal <- function(fold, fold_vec, outcome_family = "gaussian",
     unique_columns2 <- as.numeric(names(copy_map2))
     x_basis2_fit <- x_basis2[, unique_columns2]
 
-    # fit outcome regression
-    hal_lasso <- glmnet::glmnet(x = x_basis_fit, y = y_fit,
-        family = outcome_family, lambda = lambda_seq,
-        standardize = FALSE)
-
     # fit propensity score
     hal_lasso2 <- glmnet::glmnet(x = x_basis2_fit, y = y2_fit,
         family = "binomial", lambda = lambda_seq, standardize = FALSE)
+    # get propensity score predictions
+    beta_hat2 <- as.matrix(hal_lasso2$beta)
+    # intercept
+    alpha_hat2 <- hal_lasso2$a0
+    rm(x_basis2, x_basis_fit2)
+    gc()
 
     # predictions on validation sample
     if(!is.null(fold)){
@@ -203,37 +214,40 @@ one_hal <- function(fold, fold_vec, outcome_family = "gaussian",
     }
     # make HAL design for getting predictions to select lambda
     new_x_basis1 <- hal9001:::make_design_matrix(new_x_fit1, basis_list)
+    rm(new_x_fit1)
+    gc()
     new_x_basis1 <- as.matrix(new_x_basis1[, unique_columns])
     # make HAL design for getting predictions used by TMLE later
     new_x_basis2 <- hal9001:::make_design_matrix(new_x_fit2, basis_list)
+    rm(new_x_fit2)
+    gc()
     new_x_basis2 <- as.matrix(new_x_basis2[, unique_columns])
     # for propensity score
     new_x_basis3 <- hal9001:::make_design_matrix(new_x_fit3, basis_list2)
+    rm(new_x_fit3)
+    gc()
     new_x_basis3 <- as.matrix(new_x_basis3[, unique_columns2])
 
 
-    # get outcome regression predictions
-    beta_hat <- as.matrix(hal_lasso$beta)
-    # intercept
-    alpha_hat <- hal_lasso$a0
     # prediction matrices
     # for (A,W)
     or_pred_matrix1 <- cbind(rep(1, ifelse(is.null(fold), n, n_valid)), new_x_basis1) %*% rbind(alpha_hat, beta_hat)
+    rm(new_x_basis1)
+    gc()
     # for rbind((1,W),(0,W))
     or_pred_matrix2 <- cbind(rep(1, ifelse(is.null(fold), 2* n, n_valid*2)), new_x_basis2) %*% rbind(alpha_hat, beta_hat)
+    rm(new_x_basis2)
+    gc()
     if(outcome_family == "binomial"){
         or_pred_matrix1 <- apply(or_pred_matrix1, 2, plogis)
         or_pred_matrix2 <- apply(or_pred_matrix2, 2, plogis)
     }
 
-    # get propensity score predictions
-    beta_hat2 <- as.matrix(hal_lasso2$beta)
-    # intercept
-    alpha_hat2 <- hal_lasso2$a0
     # predictions
     logit_ps_pred_matrix <- cbind(rep(1, ifelse(is.null(fold), n, n_valid)), new_x_basis3) %*% rbind(alpha_hat2, beta_hat2)
     ps_pred_matrix <- apply(logit_ps_pred_matrix, 2, plogis)
-
+    rm(new_x_basis3)
+    gc()
     # compute MSE/loglik
     if(outcome_family == "gaussian"){
         or_risk <- apply(or_pred_matrix1, 2, function(x){

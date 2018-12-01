@@ -22,7 +22,8 @@ clusterSize(cl) # just to check
 Psi_0 <- 0
 # n_sim <- 1e3
 # n_grid <- c(1e3)
-n_grid <- c(1e2, 1e3)
+# n_grid <- c(1e2, 1e3)
+n_grid <- c(2e3)
 # n_grid <- c(1e2, 1e3, 1e4)
 df_simulation_result <- foreach(
   n_sim = n_grid,
