@@ -39,9 +39,10 @@ head(df_simulation_result)
 
 create_result_for_oracle_ci <- function(df_simulation_result, method = "oat") {
   df_result <- df_simulation_result[df_simulation_result$method == method, ]
-  sd_oracle <- sd(df_result$bias)
-  df_result$is_cover <- abs(df_result$bias) <= 1.96 * sd_oracle
+  df_result <- df_result %>% group_by(n) %>% mutate(sd = sd(bias))
+  df_result$is_cover <- abs(df_result$bias) <= 1.96 * df_result$sd
   df_result$method <- paste(method, "_oracle_ci", sep = "")
+  df_result <- df_result %>% ungroup()
   return(df_result)
 }
 df_simulation_result <- rbind(
@@ -60,6 +61,7 @@ df_mc_result <- df_simulation_result %>%
     mse = mean(mse),
     variance = mse - bias ^ 2,
     coverage = mean(is_cover),
+    sd = mean(sd),
     count = dplyr::n()
   )
 

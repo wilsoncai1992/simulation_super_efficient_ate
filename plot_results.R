@@ -25,6 +25,10 @@ gg <- ggplot(data = df_mc_result, aes(x = n, y = coverage, color = method)) +
   geom_hline(yintercept = .95, lty = 2)
 ggsave(filename = "./output/coverage.png", plot = gg, width = 6, height = 6)
 
+
+gg <- ggplot(data = df_simulation_result, aes(x = as.factor(n), y = sd, color = method)) +
+  geom_boxplot()
+ggsave(filename = "./output/sd.png", plot = gg, width = 6, height = 6)
 # library(dplyr)
 # yo <- df_simulation_result %>% filter(method == "tmle" & n == 1e3)
 # hist(yo$bias, 1e2)

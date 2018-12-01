@@ -297,7 +297,8 @@ mod_ks <- function(n){
     # add instrument
     Z$Z5 <- runif(n, -2, 2)
     # logit of ps
-    logit_G0 <- (- Z$Z1 + 0.5 * Z$Z2 - 0.25 * Z$Z3 - 0.1 * Z$Z4)/2 + Z$Z5
+    # logit_G0 <- (- Z$Z1 + 0.5 * Z$Z2 - 0.25 * Z$Z3 - 0.1 * Z$Z4)/2 + Z$Z5
+    logit_G0 <- (- Z$Z1 + 0.5 * Z$Z2 - Z$Z3 - 0.1 * Z$Z4) + Z$Z5 + 0.75*Z$Z5^2
     G0 <- plogis(logit_G0)
 
     # draw A
