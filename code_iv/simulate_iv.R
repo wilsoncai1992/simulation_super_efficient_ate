@@ -1,5 +1,5 @@
 # DGP:
-# W_1,...W_{n_covar} ~ N_{n_covar}(0, I)
+# W_1,...W_{n_covar} ~ U_{n_covar}(-1.5, 1.5)
 # W_{n_covar + 1} is the instrument with Bernoulli(1/2) dist.
 # \bar{G}_0(W) = expit(iv_beta/2 - iv_beta * W_{n_covar + 1} + sum_{j=1}^{n_covar} \beta_j W_j ) ,
 # where \beta_j = 2^{1 - j}, j = 1,...,n_covar
@@ -10,9 +10,26 @@
 # Y = \bar{Q}_0(A,W) + N(0,1)
 
 simulate_iv <- function(n, n_covar = 8, iv_beta = 12){
-    W <- matrix(rnorm((n_covar-1) * n), ncol = n_covar - 1)
+    W <- matrix(runif((n_covar-1) * n, -1.5, 1.5), ncol = n_covar - 1)
     # the instrument
     W <- cbind(W, rbinom(n, 1, 1/2))
+
+    # find the max and min propensity score (to report in text)
+    # W_max <- matrix(1.5, nrow = 1, ncol = 7)
+    # W_max <- cbind(W_max, 0)
+
+    # W_min <- matrix(-1.5, nrow = 1, ncol = 7)
+    # W_min <- cbind(W_min, 1)
+
+    # lg0 <- apply(W_min, 1, function(w){
+    #     iv_beta/2 - iv_beta*w[length(w)] + sum(2^(-(0:(n_covar-2))) * w[-length(w)])
+    # })
+    # plogis(lg0)
+    
+    # lg0 <- apply(W_max, 1, function(w){
+    #     iv_beta/2 - iv_beta*w[length(w)] + sum(2^(-(0:(n_covar-2))) * w[-length(w)])
+    # })
+    # plogis(lg0)
 
     logit_G0 <- apply(W, 1, function(w){
         iv_beta/2 - iv_beta*w[length(w)] + sum(2^(-(0:(n_covar-2))) * w[-length(w)])
