@@ -278,27 +278,31 @@ one_hal <- function(fold, fold_vec, outcome_family = "gaussian",
         out$G1W <- ps_pred_matrix
     } else {
         if (!is.null(fold)) {
-            train_dat <- data.frame(A = A, W)[fold_vec != fold, , drop = FALSE]
+            train_dat_or <- data.frame(A = A, W)[fold_vec != fold, , drop = FALSE]
+            train_dat_ps <- data.frame(W)[fold_vec != fold, , drop = FALSE]
             train_A <- A[fold_vec != fold]
             train_Y <- Y[fold_vec != fold]
-            valid_dat <- data.frame(A = A, W)[fold_vec == fold, , drop = FALSE]
+            valid_dat_or <- data.frame(A = A, W)[fold_vec == fold, , drop = FALSE]
+            valid_dat_ps <- data.frame(W)[fold_vec == fold, , drop = FALSE]
             valid_dat1 <- data.frame(A = 1, W)[fold_vec == fold, , drop = FALSE]
             valid_dat0 <- data.frame(A = 0, W)[fold_vec == fold, , drop = FALSE]
         } else {
             train_A <- A
             train_Y <- Y
-            train_dat <- data.frame(A = A, W)
-            valid_dat <- data.frame(A = A, W)
+            train_dat_or <- data.frame(A = A, W)
+            train_dat_ps <- data.frame(W)
+            valid_dat_or <- data.frame(A = A, W)
+            valid_dat_ps <- data.frame(W)
             valid_dat1 <- data.frame(A = 1, W)
             valid_dat0 <- data.frame(A = 0, W)
         }
-        Q_fit <- glm(train_Y ~ ., data = train_dat, family = outcome_family)
-        g_fit <- glm(train_A ~ ., data = train_dat, family = "binomial")
+        Q_fit <- glm(train_Y ~ ., data = train_dat_or, family = outcome_family)
+        g_fit <- glm(train_A ~ ., data = train_dat_ps, family = "binomial")
 
-        QAW <- predict(Q_fit, newdata = valid_dat, type = "response")
+        QAW <- predict(Q_fit, newdata = valid_dat_or, type = "response")
         Q1W <- predict(Q_fit, newdata = valid_dat1, type = "response")
         Q0W <- predict(Q_fit, newdata = valid_dat0, type = "response")
-        G1W <- predict(g_fit, newdata = valid_dat, type = "response")
+        G1W <- predict(g_fit, newdata = valid_dat_ps, type = "response")
 
         out <- list()
         out$QAW <- matrix(QAW, ncol = 1)
