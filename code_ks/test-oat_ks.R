@@ -5,7 +5,8 @@ library(dplyr)
 source("./david_oat.R")
 source("./david_ks.R")
 
-N_SIMULATION <- 5e2
+N_SIMULATION <- 1e3
+# N_SIMULATION <- 8
 library(foreach)
 library(Rmpi)
 library(doMPI)
@@ -21,10 +22,8 @@ clusterSize(cl) # just to check
 
 Psi_0 <- 0
 # n_sim <- 1e3
-# n_grid <- c(1e3)
-# n_grid <- c(1e2, 1e3)
-n_grid <- c(2e3)
-# n_grid <- c(1e2, 1e3, 1e4)
+# n_grid <- c(1e2)
+n_grid <- c(1e2, 5e2, 1e3)
 df_simulation_result <- foreach(
   n_sim = n_grid,
   .combine = rbind,
