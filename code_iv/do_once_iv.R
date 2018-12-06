@@ -1,11 +1,12 @@
-do_once <- function(x, n, n_covar = 8, iv_beta = 12){
+do_once <- function(x, n, n_covar = 8, iv_beta = 12,
+                    full_adaptive_cv = FALSE){
   # set.seed(x)
   dat <- simulate_iv(n = n, n_covar = n_covar, iv_beta = iv_beta)
   ## get nuisance estimates using oat_hal
   # output is a data.frame with nuisance estimators evaluated at observed
   # data and a vector of CV-folds
   nuisance <- oat_hal(W = dat$W, A = dat$A, Y = dat$Y,
-                      V = 5,
+                      V = 5, full_adaptive_cv = full_adaptive_cv,
                       # lambda_seq = exp(seq(-1,-8, length = 2000)),
                       lambda_seq = exp(seq(-1, -8, length = 1e2)),
                       parametric_fits = TRUE)
