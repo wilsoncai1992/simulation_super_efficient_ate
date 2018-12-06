@@ -8,7 +8,7 @@ source("./simulate_iv.R")
 source("./do_once_iv.R")
 
 N_SIMULATION <- 1e3
-# N_SIMULATION <- 8
+# N_SIMULATION <- 4
 library(foreach)
 library(Rmpi)
 library(doMPI)
@@ -28,7 +28,7 @@ Psi_0 <- 1
 n_grid <- c(1e2, 5e2, 1e3)
 
 # iv_beta_grid <- c(0, 12)
-iv_beta_grid <- c(0, 6, 12)
+iv_beta_grid <- c(0, 3, 6)
 df_simulation_result <- foreach(
   n_sim = n_grid,
   .combine = rbind,
@@ -39,7 +39,12 @@ df_simulation_result <- foreach(
 ) %:%
   foreach(iv_beta = iv_beta_grid, .combine = rbind) %:%
     foreach(it2 = 1:N_SIMULATION, .combine = rbind) %dopar% {
-      do_once(1, n = n_sim, n_covar = 8, iv_beta = iv_beta)
+      # do_once(
+      #   1, n = n_sim, n_covar = 8, iv_beta = iv_beta, full_adaptive_cv = FALSE
+      # )
+      do_once(
+        1, n = n_sim, n_covar = 8, iv_beta = iv_beta, full_adaptive_cv = TRUE
+      )
     }
 head(df_simulation_result)
 
@@ -58,6 +63,14 @@ df_simulation_result <- rbind(
 df_simulation_result <- rbind(
   df_simulation_result,
   create_result_for_oracle_ci(df_simulation_result, "onestep")
+)
+df_simulation_result <- rbind(
+  df_simulation_result,
+  create_result_for_oracle_ci(df_simulation_result, "onestep_oat")
+)
+df_simulation_result <- rbind(
+  df_simulation_result,
+  create_result_for_oracle_ci(df_simulation_result, "tmle")
 )
 
 df_mc_result <- df_simulation_result %>%

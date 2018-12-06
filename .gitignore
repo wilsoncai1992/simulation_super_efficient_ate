@@ -1,5 +1,6 @@
 *.rda
 *.pdf
+*.png
 # History files
 .Rhistory
 .Rapp.history
@@ -37,3 +38,5 @@ vignettes/*.pdf
 *.sh
 
 *.png
+
+*.csv

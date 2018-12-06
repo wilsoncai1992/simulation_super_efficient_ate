@@ -18,7 +18,7 @@
 #' even when parametric_fits = TRUE.
 #' @param full_adaptive_cv If TRUE then the adaptive PS is tuned using cross-validated versions of Q (i.e.,
 #' more formal cross-validation). If FALSE then the adaptive PS is tuned based on Q that was fit using
-#' the full data. 
+#' the full data.
 #'
 #' @return A data.frame. \code{QAW} = the HAL fit at CV-selected lambda for Qbar evaluated at (A_i, W_i),
 #' for i = 1,...,n ; \code{Q1W} = the HAL fit at CV-selected lambda for Qbar evaluated at (1, W_i) ;
@@ -31,7 +31,7 @@
 
 oat_hal <- function(W, A, Y, V = 10, outcome_family = "gaussian",
                     parametric_fits = FALSE,
-                    full_adaptive_cv = FALSE, 
+                    full_adaptive_cv = FALSE,
                     lambda_seq = exp(seq(-1, -13, length=10000))){
 
     n <- length(A)
@@ -124,7 +124,7 @@ oat_hal <- function(W, A, Y, V = 10, outcome_family = "gaussian",
                              fold_vec = fold_vec,
                              Q1W = Q1W_cv_cvselect,
                              Q0W = Q0W_cv_cvselect,
-                             A = A, 
+                             A = A,
                              lambda_seq = lambda_seq,
                              simplify = FALSE)
             # outcome regression
@@ -134,7 +134,7 @@ oat_hal <- function(W, A, Y, V = 10, outcome_family = "gaussian",
 
             # re-fit on full data
             full_hal <- one_red_hal(fold = NULL, fold_vec = NULL,
-                         A = A, Q1W = Q1W_cvselect, Q0W = Q0W_cvselect, 
+                         A = A, Q1W = Q1W_cvselect, Q0W = Q0W_cvselect,
                          lambda_seq = lambda_seq)
 
             # GQW at cv selected lambda
@@ -356,7 +356,7 @@ one_red_hal <- function(fold, fold_vec, outcome_family = "binomial",
     # if called fitting to full data
     }else{
         x_fit <- cbind(Q1W, Q0W)
-        y_fit <- A        
+        y_fit <- A
     }
 
     # for outcome regression
@@ -390,7 +390,7 @@ one_red_hal <- function(fold, fold_vec, outcome_family = "binomial",
     pred_matrix1 <- cbind(rep(1, ifelse(is.null(fold), n, n_valid)), new_x_basis1) %*% rbind(alpha_hat, beta_hat)
     if(outcome_family == "binomial"){
         pred_matrix1 <- apply(pred_matrix1, 2, plogis)
-    } 
+    }
     risk <- apply(pred_matrix1, 2, function(x){
             mean(ifelse(A[fold_vec == fold] == 1, -log(x), -log(1 - x)))
     })
