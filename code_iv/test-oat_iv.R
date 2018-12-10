@@ -78,11 +78,12 @@ df_mc_result <- df_simulation_result %>%
   summarize(
     bias = mean(bias),
     mse = mean(mse),
-    variance = mse - bias ^ 2,
     coverage = mean(is_cover),
     sd = mean(sd),
     count = dplyr::n()
-  )
+  ) %>%
+  mutate(variance = mse - bias ^ 2)
+
 
 save(
   df_mc_result,

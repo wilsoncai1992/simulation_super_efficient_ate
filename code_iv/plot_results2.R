@@ -3,8 +3,10 @@ library(ggplot2)
 library(dplyr)
 
 gg <- ggplot(
-  data = df_mc_result %>% filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  # data = df_mc_result %>% filter(!grepl(pattern = "plugin", method)),
+  data = df_mc_result %>%
+    filter(method %in%
+      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
+    # filter(!grepl(pattern = "plugin", method)),
   aes(x = n, y = bias, color = method)
 ) +
   geom_line() +
@@ -14,8 +16,9 @@ gg <- ggplot(
 ggsave(filename = "./output/bias.png", plot = gg, width = 6, height = 6)
 
 gg <- ggplot(
-  data = df_mc_result %>% filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  # data = df_mc_result %>% filter(!grepl(pattern = "plugin", method)),
+  data = df_mc_result %>%
+    filter(method %in%
+      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
   aes(x = n, y = variance, color = method)
 ) +
   geom_line() +
@@ -24,9 +27,10 @@ gg <- ggplot(
   facet_grid(. ~ iv_beta)
 ggsave(filename = "./output/variance.png", plot = gg, width = 6, height = 6)
 
-df_oat <- df_mc_result %>% filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle"))
-# df_oat <- df_mc_result %>% filter(!grepl(pattern = "plugin", method))
-df_tmle <- df_mc_result %>% filter(method %in% c("tmle"))
+df_oat <- df_mc_result %>%
+  filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle"))
+df_tmle <- df_mc_result %>%
+  filter(method %in% c("tmle"))
 
 df_plot <- dplyr::left_join(df_oat, df_tmle, c("n", "iv_beta"))
 df_plot$re <- df_plot$mse.x / df_plot$mse.y
@@ -39,8 +43,9 @@ gg <- ggplot(data = df_plot, aes(x = n, y = re, color = method)) +
 ggsave(filename = "./output/re.png", plot = gg, width = 6, height = 6)
 
 gg <- ggplot(
-  data = df_mc_result %>% filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  # data = df_mc_result %>% filter(!grepl(pattern = "plugin", method)),
+  data = df_mc_result %>%
+    filter(method %in%
+      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
   aes(x = n, y = coverage, color = method)
 ) +
   geom_line() +
@@ -58,20 +63,36 @@ df_bias_std <- dplyr::left_join(
 )
 df_bias_std$bias_std <- df_bias_std$bias / df_bias_std$sd_oracle
 gg <- ggplot(
-  data = df_bias_std %>% filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  # data = df_bias_std %>% filter(!grepl(pattern = "plugin", method)),
-  aes(x = bias_std, color = method)
+  data = df_bias_std %>%
+    filter(method %in%
+      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
+  aes(x = bias * sqrt(n), fill = method, color = method)
 ) +
-  stat_function(fun = function(x) dnorm(x), color = "black") +
-  geom_density() +
+  # stat_function(fun = function(x) dnorm(x), color = "black") +
+  geom_density(alpha = .3) +
   geom_vline(xintercept = 0, lty = 2) +
+  # xlim(c(-1, 1) * 2.5) +
   facet_grid(n ~ iv_beta)
-ggsave(filename = "./output/hist_bias_std.png", plot = gg, width = 6, height = 6)
+ggsave(filename = "./output/hist_bias_sqrtn_tmle.png", plot = gg, width = 6, height = 6)
 
 gg <- ggplot(
-  data = df_mc_result %>% filter(!grepl(pattern = "plugin", method)),
-  data = df_mc_result %>% filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  # aes(x = as.factor(n), y = sd, color = method)
+  data = df_bias_std %>%
+    filter(method %in%
+      c("onestep_oat_cv_variance", "onestep_cv_variance", "tmle")),
+  aes(x = bias * sqrt(n), fill = method, color = method)
+) +
+  # stat_function(fun = function(x) dnorm(x), color = "black") +
+  geom_density(alpha = .3) +
+  geom_vline(xintercept = 0, lty = 2) +
+  # xlim(c(-1, 1) * 2.5) +
+  facet_grid(n ~ iv_beta)
+ggsave(filename = "./output/hist_bias_sqrtn_onestep.png", plot = gg, width = 6, height = 6)
+
+gg <- ggplot(
+  data = df_mc_result %>%
+    filter(method %in%
+      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
+  aes(x = as.factor(n), y = sd, color = method)
 ) +
   geom_boxplot() +
   ylim(c(0, 1)) +
