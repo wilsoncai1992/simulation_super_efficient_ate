@@ -1,98 +1,200 @@
 load("./output/df_mc_result.rda")
 library(ggplot2)
+library(ggpubr)
 library(dplyr)
 
-gg <- ggplot(
-  data = df_mc_result %>%
-    filter(method %in%
-      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-    # filter(!grepl(pattern = "plugin", method)),
-  aes(x = n, y = bias, color = method)
-) +
-  geom_line() +
-  geom_point()
-  # ylim(c(-.5, .5)) +
-ggsave(filename = "./output/bias.png", plot = gg, width = 6, height = 6)
+df_mc_result <- df_mc_result %>% rename(Method = method)
+df_simulation_result <- df_simulation_result %>% rename(Method = method)
 
-gg <- ggplot(
-  data = df_mc_result %>%
-    filter(method %in%
-      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  aes(x = n, y = variance, color = method)
-) +
-  geom_line() +
-  geom_point()
-  # ylim(c(0, 1)) +
-ggsave(filename = "./output/variance.png", plot = gg, width = 6, height = 6)
+get_df_plot <- function(df, method_to_plot, m1, m2) {
+  df_out <- df %>% filter(Method %in% method_to_plot)
+  df_out$Method <- as.character(df_out$Method)
+  df_out$Method[df_out$Method == method_to_plot[1]] <- m1
+  df_out$Method[df_out$Method == method_to_plot[2]] <- m2
+  return(df_out)
+}
+df_plot_oat1 <- get_df_plot(
+  df_mc_result, c("oat_oracle_ci", "tmle_oracle_ci"), "ctmle", "tmle"
+)
+df_plot_oat2 <- get_df_plot(
+  df_mc_result, c("oat_cv_variance", "tmle_cv_variance"), "ctmle", "tmle"
+)
 
-df_oat <- df_mc_result %>%
-  filter(method %in% c("oat_oracle_ci", "oat_cv_variance", "tmle"))
-df_tmle <- df_mc_result %>%
-  filter(method %in% c("tmle"))
-
-df_plot <- dplyr::left_join(df_oat, df_tmle, c("n"))
-df_plot$re <- df_plot$mse.x / df_plot$mse.y
-df_plot$method <- df_plot$method.x
-gg <- ggplot(data = df_plot, aes(x = n, y = re, color = method)) +
-  geom_line() +
-  geom_point()
-ggsave(filename = "./output/re.png", plot = gg, width = 6, height = 6)
-
-gg <- ggplot(
-  data = df_mc_result %>%
-    filter(method %in%
-      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  aes(x = n, y = coverage, color = method)
+gg1 <- ggplot(
+  data = df_plot_oat1, aes(x = n, y = bias, shape = Method, lty = Method)
 ) +
   geom_line() +
   geom_point() +
-  geom_hline(yintercept = .95, lty = 2)
-ggsave(filename = "./output/coverage.png", plot = gg, width = 6, height = 6)
+  geom_hline(yintercept = 0, lty = 3) +
+  ylab("Bias") +
+  # facet_grid(. ~ iv_beta) +
+  theme_bw()
+gg2 <- ggplot(
+  data = df_plot_oat1, aes(x = n, y = variance, shape = Method, lty = Method)
+) +
+  geom_line() +
+  geom_point() +
+  ylab("Variance") +
+  # facet_grid(. ~ iv_beta) +
+  theme_bw()
 
-
-df_sdOracle <- df_simulation_result %>%
-  group_by(n, method) %>%
-  summarise(sd_oracle = sd(bias))
-df_bias_std <- dplyr::left_join(
-  df_simulation_result, df_sdOracle, c("n", "method")
+df_tmle <- df_plot_oat1 %>% filter(Method %in% c("tmle"))
+df_plot <- dplyr::left_join(df_plot_oat1, df_tmle, c("n"))
+df_plot$re <- df_plot$mse.x / df_plot$mse.y
+df_plot$Method <- df_plot$Method.x
+gg3 <- ggplot(
+  data = df_plot, aes(x = n, y = re, shape = Method, lty = Method)
+) +
+  geom_line() +
+  geom_point() +
+  ylab("Relative efficiency") +
+  # facet_grid(. ~ iv_beta) +
+  theme_bw()
+gg_panel1 <- ggarrange(
+  gg1,
+  gg2,
+  gg3,
+  nrow = 3,
+  labels = "AUTO",
+  common.legend = TRUE,
+  legend = "none"
 )
-df_bias_std$bias_std <- df_bias_std$bias / df_bias_std$sd_oracle
-gg <- ggplot(
-  data = df_bias_std %>%
-    filter(method %in%
-      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  # aes(x = bias * sqrt(n), fill = method, color = method)
-  aes(x = bias_std, fill = method, color = method)
-) +
-  stat_function(fun = function(x) dnorm(x), color = "black") +
-  geom_density(alpha = .3) +
-  geom_vline(xintercept = 0, lty = 2) +
-  facet_grid(. ~ n)
-# ggsave(filename = "./output/hist_bias_sqrtn_tmle.png", plot = gg, width = 6, height = 6)
-ggsave(filename = "./output/hist_bias_std_tmle.png", plot = gg, width = 6, height = 6)
 
-gg <- ggplot(
-  data = df_bias_std %>%
-    filter(method %in%
-      c("onestep_oat_cv_variance", "onestep_cv_variance", "tmle")),
-  # aes(x = bias * sqrt(n), fill = method, color = method)
-  aes(x = bias_std, fill = method, color = method)
+# df_sdOracle <- df_simulation_result %>%
+#   group_by(n, iv_beta, Method) %>%
+#   summarise(sd_oracle = sd(bias))
+# df_bias_std <- dplyr::left_join(
+#   df_simulation_result, df_sdOracle, c("n", "iv_beta", "Method")
+# )
+# df_bias_std$bias_std <- df_bias_std$bias / df_bias_std$sd_oracle
+df_plot_density <- get_df_plot(
+  df_simulation_result, c("oat_oracle_ci", "tmle_oracle_ci"), "ctmle", "tmle"
+)
+gg4 <- ggplot(
+  data = df_plot_density, aes(x = bias * sqrt(n), lty = Method)
 ) +
-  stat_function(fun = function(x) dnorm(x), color = "black") +
-  geom_density(alpha = .3) +
-  geom_vline(xintercept = 0, lty = 2) +
-  facet_grid(. ~ n)
-# ggsave(filename = "./output/hist_bias_sqrtn_onestep.png", plot = gg, width = 6, height = 6)
-ggsave(filename = "./output/hist_bias_std_onestep.png", plot = gg, width = 6, height = 6)
+  geom_density(alpha = 1) +
+  geom_vline(xintercept = 0, lty = 3) +
+  xlim(c(-1, 1) * 10) +
+  ylab("sqrt(n) * (Psi_n - Psi_0)") +
+  facet_grid(n ~ .) +
+  theme_bw() + theme(legend.position = "none")
+gg_panel2 <- ggarrange(
+  gg_panel1,
+  gg4,
+  ncol = 2,
+  labels = c("", "D"),
+  common.legend = TRUE,
+  legend = "bottom"
+)
+ggsave(gg_panel2, filename = "./output/tmle_panel.pdf", width = 12, height = 6.75)
+# ggsave(gg_panel2, filename = "./output/tmle_panel.png", width = 12, height = 6.75)
 
-gg <- ggplot(
-  data = df_mc_result %>%
-    filter(method %in%
-      c("oat_oracle_ci", "oat_cv_variance", "tmle")),
-  aes(x = as.factor(n), y = sd, color = method)
+plot_coverage <- function(df) {
+  ggplot(
+    data = df, aes(x = n, y = coverage, shape = Method, lty = Method)
+  ) +
+    geom_line() +
+    geom_point() +
+    geom_hline(yintercept = .95, lty = 3) +
+    ylab("Coverage") +
+    # ylim(c(.6, 1)) +
+    # facet_grid(. ~ iv_beta) +
+    theme_bw()
+}
+gg01 <- plot_coverage(df_plot_oat1)
+gg02 <- plot_coverage(df_plot_oat2)
+gg_panel2 <- ggarrange(
+  gg01,
+  gg02,
+  nrow = 2,
+  labels = "AUTO",
+  common.legend = TRUE,
+  legend = "bottom"
+)
+ggsave(gg_panel2, filename = "./output/tmle_coverage.pdf", width = 4, height = 4)
+# ggsave(gg_panel2, filename = "./output/tmle_coverage.png", width = 4, height = 4)
+
+# =============================================================================
+df_plot_oat1 <- get_df_plot(
+  df_mc_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "c-onestep", "onestep"
+)
+df_plot_oat2 <- get_df_plot(
+  df_mc_result, c("onestep_oat_cv_variance", "onestep_cv_variance"), "c-onestep", "onestep"
+)
+
+gg1 <- ggplot(
+  data = df_plot_oat1, aes(x = n, y = bias, shape = Method, lty = Method)
 ) +
-  geom_boxplot()
-  # ylim(c(0, 1))
-ggsave(filename = "./output/sd.png", plot = gg, width = 6, height = 6)
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 0, lty = 3) +
+  ylab("Bias") +
+  # facet_grid(. ~ iv_beta) +
+  theme_bw()
+gg2 <- ggplot(
+  data = df_plot_oat1, aes(x = n, y = variance, shape = Method, lty = Method)
+) +
+  geom_line() +
+  geom_point() +
+  ylab("Variance") +
+  # facet_grid(. ~ iv_beta) +
+  theme_bw()
 
-write.csv(df_mc_result, "./output/table.csv")
+df_tmle <- df_plot_oat1 %>% filter(Method %in% c("onestep"))
+df_plot <- dplyr::left_join(df_plot_oat1, df_tmle, c("n"))
+df_plot$re <- df_plot$mse.x / df_plot$mse.y
+df_plot$Method <- df_plot$Method.x
+gg3 <- ggplot(
+  data = df_plot, aes(x = n, y = re, shape = Method, lty = Method)
+) +
+  geom_line() +
+  geom_point() +
+  ylab("Relative efficiency") +
+  # facet_grid(. ~ iv_beta) +
+  theme_bw()
+gg_panel1 <- ggarrange(
+  gg1,
+  gg2,
+  gg3,
+  nrow = 3,
+  labels = "AUTO",
+  common.legend = TRUE,
+  legend = "none"
+)
+
+df_plot_density <- get_df_plot(
+  df_simulation_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "c-onestep", "onestep"
+)
+gg4 <- ggplot(
+  data = df_plot_density, aes(x = bias * sqrt(n), lty = Method)
+) +
+  geom_density(alpha = 1) +
+  geom_vline(xintercept = 0, lty = 3) +
+  xlim(c(-1, 1) * 10) +
+  ylab("sqrt(n) * (Psi_n - Psi_0)") +
+  facet_grid(n ~ .) +
+  theme_bw() + theme(legend.position = "none")
+gg_panel2 <- ggarrange(
+  gg_panel1,
+  gg4,
+  ncol = 2,
+  labels = c("", "D"),
+  common.legend = TRUE,
+  legend = "bottom"
+)
+ggsave(gg_panel2, filename = "./output/onestep_panel.pdf", width = 12, height = 6.75)
+# ggsave(gg_panel2, filename = "./output/onestep_panel.png", width = 12, height = 6.75)
+
+gg01 <- plot_coverage(df_plot_oat1)
+gg02 <- plot_coverage(df_plot_oat2)
+gg_panel2 <- ggarrange(
+  gg01,
+  gg02,
+  nrow = 2,
+  labels = "AUTO",
+  common.legend = TRUE,
+  legend = "bottom"
+)
+ggsave(gg_panel2, filename = "./output/onestep_coverage.pdf", width = 4, height = 4)
+# ggsave(gg_panel2, filename = "./output/onestep_coverage.png", width = 4, height = 4)

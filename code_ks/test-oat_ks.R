@@ -32,7 +32,7 @@ df_simulation_result <- foreach(
   .errorhandling = "pass",
   .verbose = TRUE
 ) %:%
-  foreach(it2 = 1:N_SIMULATION, .combine = rbind) %dopar% {
+  foreach(it2 = 1:N_SIMULATION, .combine = rbind, .errorhandling = "remove") %dopar% {
     do_once(1, n = n_sim)
   }
 head(df_simulation_result)
@@ -53,6 +53,14 @@ df_simulation_result <- rbind(
   df_simulation_result,
   create_result_for_oracle_ci(df_simulation_result, "onestep")
 )
+df_simulation_result <- rbind(
+  df_simulation_result,
+  create_result_for_oracle_ci(df_simulation_result, "onestep_oat")
+)
+df_simulation_result <- rbind(
+  df_simulation_result,
+  create_result_for_oracle_ci(df_simulation_result, "tmle")
+)
 
 df_mc_result <- df_simulation_result %>%
   group_by(method, n) %>%
@@ -71,4 +79,5 @@ save(
   file = paste("df_mc_result.rda", sep = "")
 )
 closeCluster(cl)
+mpi.quit()
 # stopCluster(cl)

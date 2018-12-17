@@ -23,11 +23,9 @@ clusterSize(cl) # just to check
 # registerDoSNOW(cl)
 
 Psi_0 <- 1
-# n_sim <- 1e3
 # n_grid <- c(1e2)
 n_grid <- c(1e2, 5e2, 1e3)
 
-# iv_beta_grid <- c(0, 12)
 iv_beta_grid <- c(0, 3, 6)
 df_simulation_result <- foreach(
   n_sim = n_grid,
@@ -39,10 +37,8 @@ df_simulation_result <- foreach(
 ) %:%
   foreach(iv_beta = iv_beta_grid, .combine = rbind) %:%
     foreach(it2 = 1:N_SIMULATION, .combine = rbind) %dopar% {
-      # do_once(
-      #   1, n = n_sim, n_covar = 8, iv_beta = iv_beta, full_adaptive_cv = FALSE
-      # )
       do_once(
+      #   1, n = n_sim, n_covar = 8, iv_beta = iv_beta, full_adaptive_cv = FALSE
         1, n = n_sim, n_covar = 8, iv_beta = iv_beta, full_adaptive_cv = TRUE
       )
     }
