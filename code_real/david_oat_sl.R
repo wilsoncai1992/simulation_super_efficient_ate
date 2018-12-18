@@ -26,8 +26,9 @@ oat_sl <- function(
   full_adaptive_cv = FALSE,
   SL.library = c(
     # "SL.mean", "SL.glm", "SL.step.forward", "SL.earth", "SL.randomForest", "SL.glmnet"
-    # "SL.mean", "SL.glm", "SL.earth", "SL.randomForest", "SL.glmnet"
-    "SL.mean", "SL.glm", "SL.glmnet"
+    "SL.glm", "SL.earth", "SL.randomForest", "SL.glmnet"
+    # "SL.mean", "SL.glm", "SL.step.forward", "SL.earth", "SL.glmnet"
+    # "SL.mean", "SL.glm", "SL.glmnet"
   ),
   lambda_seq = exp(seq(-1, -13, length = 500))
 ) {
