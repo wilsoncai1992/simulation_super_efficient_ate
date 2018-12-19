@@ -48,6 +48,7 @@ gg3 <- ggplot(
   geom_line() +
   geom_point() +
   ylab("Relative efficiency") +
+  ylim(c(.1, 1.1)) +
   # facet_grid(. ~ iv_beta) +
   theme_bw()
 gg_panel1 <- ggarrange(
@@ -76,9 +77,11 @@ gg4 <- ggplot(
   geom_density(alpha = 1) +
   geom_vline(xintercept = 0, lty = 3) +
   xlim(c(-1, 1) * 10) +
-  ylab("sqrt(n) * (Psi_n - Psi_0)") +
+  xlab(expression(sqrt(n) * (Psi[n] - Psi[0]))) +
+  ylab("Density") +
   facet_grid(n ~ .) +
-  theme_bw() + theme(legend.position = "none")
+  theme_bw() +
+  theme(legend.position = "none")
 gg_panel2 <- ggarrange(
   gg_panel1,
   gg4,
@@ -98,7 +101,7 @@ plot_coverage <- function(df) {
     geom_point() +
     geom_hline(yintercept = .95, lty = 3) +
     ylab("Coverage") +
-    # ylim(c(.6, 1)) +
+    ylim(c(.8, 1)) +
     # facet_grid(. ~ iv_beta) +
     theme_bw()
 }
@@ -151,6 +154,7 @@ gg3 <- ggplot(
   geom_line() +
   geom_point() +
   ylab("Relative efficiency") +
+  ylim(c(.1, 1.1)) +
   # facet_grid(. ~ iv_beta) +
   theme_bw()
 gg_panel1 <- ggarrange(
@@ -172,7 +176,8 @@ gg4 <- ggplot(
   geom_density(alpha = 1) +
   geom_vline(xintercept = 0, lty = 3) +
   xlim(c(-1, 1) * 10) +
-  ylab("sqrt(n) * (Psi_n - Psi_0)") +
+  xlab(expression(sqrt(n) * (Psi[n] - Psi[0]))) +
+  ylab("Density") +
   facet_grid(n ~ .) +
   theme_bw() + theme(legend.position = "none")
 gg_panel2 <- ggarrange(

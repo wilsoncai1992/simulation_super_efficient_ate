@@ -49,6 +49,7 @@ gg3 <- ggplot(
   geom_point() +
   ylab("Relative efficiency") +
   facet_grid(. ~ iv_beta) +
+  ylim(c(.1, 1.1)) +
   theme_bw()
 gg_panel1 <- ggarrange(
   gg1,
@@ -153,6 +154,7 @@ gg3 <- ggplot(
   geom_point() +
   ylab("Relative efficiency") +
   facet_grid(. ~ iv_beta) +
+  ylim(c(.1, 1.1)) +
   theme_bw()
 gg_panel1 <- ggarrange(
   gg1,

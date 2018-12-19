@@ -1,6 +1,7 @@
 library(drtmle)
 library(dplyr)
-do_once <- function(dat, dat_name, permute_y = FALSE){
+do_once <- function(dat, dat_name, permute_y = FALSE, seed = NULL){
+  if (!is.null(seed)) set.seed(seed)
   if (permute_y) dat$Y <- sample(dat$Y)
   ## get nuisance estimates using oat_hal
   # output is a data.frame with nuisance estimators evaluated at observed
@@ -192,7 +193,7 @@ do_once <- function(dat, dat_name, permute_y = FALSE){
   df_result$n <- nrow(dat$W)
   df_result$n_w <- ncol(dat$W)
   df_result$dat_name <- dat_name
-  df_result$it2 <- it2
+  df_result$seed <- seed
   # return(list(df_result = df_result, Y = dat$Y))
   return(df_result)
 }

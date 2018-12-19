@@ -5,7 +5,7 @@ library(dplyr)
 source("./david_oat_sl.R")
 source("./david_realdata.R")
 
-N_SIMULATION <- 1e3
+N_SIMULATION <- 2e2
 # N_SIMULATION <- 2
 library(foreach)
 library(Rmpi)
@@ -29,11 +29,12 @@ df_simulation_result <- foreach(
   .errorhandling = "pass",
   .verbose = TRUE
 ) %:%
-  foreach(it2 = 1:N_SIMULATION, .combine = rbind, .errorhandling = "remove") %dopar% {
+  foreach(seed = 1:N_SIMULATION, .combine = rbind, .errorhandling = "remove") %dopar% {
     if (i_data == 1) {load("./fev_data.RData"); dat <- fev_data; dat_name <- "fev"}
     if (i_data == 2) {load("./cebu_data.RData"); dat <- cebu_data; dat_name <- "cebu"}
     if (i_data == 3) {load("./wine_data.RData"); dat <- wine_data; dat_name <- "wine"}
-    do_once(dat, dat_name, permute_y = TRUE)
+    # do_once(dat, dat_name, permute_y = TRUE)
+    do_once(dat, dat_name, permute_y = TRUE, seed = seed)
   }
 head(df_simulation_result)
 
