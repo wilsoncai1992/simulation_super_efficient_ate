@@ -192,5 +192,7 @@ do_once <- function(dat, dat_name, permute_y = FALSE){
   df_result$n <- nrow(dat$W)
   df_result$n_w <- ncol(dat$W)
   df_result$dat_name <- dat_name
+  df_result$it2 <- it2
+  # return(list(df_result = df_result, Y = dat$Y))
   return(df_result)
 }

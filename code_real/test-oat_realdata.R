@@ -20,10 +20,9 @@ clusterSize(cl) # just to check
 # cl <- makeSOCKcluster(nw)
 # registerDoSNOW(cl)
 
-
 Psi_0 <- 0
 df_simulation_result <- foreach(
-  i_data = 1:3,
+  i_data = 2,
   .combine = rbind,
   .packages = c("data.table", "drtmle", "hal9001", "SuperLearner"),
   .inorder = FALSE,
@@ -80,20 +79,20 @@ save(
   file = paste("df_mc_result.rda", sep = "")
 )
 
-df_no_permute <- list()
-for (i_data in 1:3) {
-  if (i_data == 1) {load("./fev_data.RData"); dat <- fev_data; dat_name <- "fev"}
-  if (i_data == 2) {load("./cebu_data.RData"); dat <- cebu_data; dat_name <- "cebu"}
-  if (i_data == 3) {load("./wine_data.RData"); dat <- wine_data; dat_name <- "wine"}
-  df_no_permute <- c(
-    df_no_permute, list(do_once(dat, dat_name, permute_y = FALSE))
-  )
-}
-df_no_permute <- do.call(rbind, df_no_permute)
-save(
-  df_no_permute,
-  file = paste("df_no_permute.rda", sep = "")
-)
+# df_no_permute <- list()
+# for (i_data in 1:3) {
+#   if (i_data == 1) {load("./fev_data.RData"); dat <- fev_data; dat_name <- "fev"}
+#   if (i_data == 2) {load("./cebu_data.RData"); dat <- cebu_data; dat_name <- "cebu"}
+#   if (i_data == 3) {load("./wine_data.RData"); dat <- wine_data; dat_name <- "wine"}
+#   df_no_permute <- c(
+#     df_no_permute, list(do_once(dat, dat_name, permute_y = FALSE))
+#   )
+# }
+# df_no_permute <- do.call(rbind, df_no_permute)
+# save(
+#   df_no_permute,
+#   file = paste("df_no_permute.rda", sep = "")
+# )
 
 closeCluster(cl)
 mpi.quit()
