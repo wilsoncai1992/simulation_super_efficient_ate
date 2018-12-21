@@ -26,7 +26,7 @@ oat_sl <- function(
   full_adaptive_cv = FALSE,
   SL.library = c(
     # "SL.mean", "SL.glm", "SL.step.forward", "SL.earth", "SL.randomForest", "SL.glmnet"
-    "SL.glm", "SL.earth", "SL.randomForest", "SL.glmnet"
+    "SL.glm", "SL.earth", "SL.randomForest", "SL.glmnet", "SL.gbm", "SL.step.forward"
     # "SL.mean", "SL.glm", "SL.step.forward", "SL.earth", "SL.glmnet"
     # "SL.mean", "SL.glm", "SL.glmnet"
   ),
@@ -34,14 +34,12 @@ oat_sl <- function(
 ) {
     n <- length(Y)
     # make a vector of cv-folds
-    chunk2 <- function(x, n) split(x, cut(
-        sample(seq_along(x), size = length(x), replace = FALSE),
-        n,
-        labels = FALSE
-    ))
-    fold_idx <- chunk2(seq_len(n), V)
-    fold_vec <- rep(seq_len(V), unlist(lapply(fold_idx, length)))
-    # fold_idx <- unlist(fold_idx, use.names = FALSE)
+    base_rep <- rep(round(n/V), V)
+    mod_rep <- n%%V
+    base_rep[seq_len(mod_rep)] <- base_rep[seq_len(mod_rep)] + 1
+    fold_vec <- rep(seq_len(V), base_rep)
+    fold_idx <- sapply(seq_len(V), function(x){ which(fold_vec == x) }, simplify = FALSE)
+
 
     # fit a super learner for OR
     newX_or <- rbind(
