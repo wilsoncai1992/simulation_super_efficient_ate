@@ -32,15 +32,14 @@ for (A_name in A_names) {
       # , lasso_fit$glmnet.fit$lambda == lasso_fit$lambda.1se
     # ]
     nonzero <- sum(beta_hat != 0)
-    data.frame(g_hat = g_hat, A = A_name, nonzero = nonzero)
+    data.frame(g_hat = g_hat[, 1], A = A_name, nonzero = nonzero)
   }
   j <- j + 1
 }
 df_propensity_scores <- do.call(rbind, as.list(df_propensity_scores))
 table(df_propensity_scores$A)
 library(ggplot2)
-# gg <- ggplot(df_propensity_scores, aes(x = g_hat)) +
-gg <- ggplot(df_propensity_scores, aes(x = X1)) +
+gg <- ggplot(df_propensity_scores, aes(x = g_hat)) +
   geom_histogram() +
   facet_wrap(. ~ A, ncol = 8) +
   theme_bw()
