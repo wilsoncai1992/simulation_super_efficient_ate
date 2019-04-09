@@ -36,10 +36,11 @@ oat_hal <- function(W, A, Y, V = 10, outcome_family = "gaussian",
 
     n <- length(A)
     # make a vector of cv-folds
-    chunk2 <- function(x, n) split(x, cut(seq_along(x), n, labels = FALSE))
-    fold_idx <- chunk2(seq_len(n), V)
-    fold_vec <- rep(seq_len(V), unlist(lapply(fold_idx, length)))
-    fold_idx <- unlist(fold_idx, use.names = FALSE)
+    base_rep <- rep(round(n/V), V)
+    mod_rep <- n%%V
+    base_rep[seq_len(mod_rep)] <- base_rep[seq_len(mod_rep)] + 1
+    fold_vec <- rep(seq_len(V), base_rep)
+    fold_idx <- sapply(seq_len(V), function(x){ which(fold_vec == x) }, simplify = FALSE)
 
     # cross-validation routine
     cv_out <- sapply(seq_len(V), one_hal,
