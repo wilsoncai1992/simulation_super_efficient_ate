@@ -1,4 +1,5 @@
 *.rda
+*.RData
 *.pdf
 *.png
 # History files
