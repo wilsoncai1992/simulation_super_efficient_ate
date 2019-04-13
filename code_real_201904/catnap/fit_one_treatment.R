@@ -77,6 +77,7 @@ fit_one_A <- function(W, A, Y) {
   )
 
   psi_n <- mean(nuisance_fits$Q1W - nuisance_fits$Q0W)
+  n <- nrow(nuisance_fits)
   eic_fit <- compute_eic(
     Q1W = nuisance_fits$Q1W,
     Q0W = nuisance_fits$Q0W,
@@ -87,9 +88,9 @@ fit_one_A <- function(W, A, Y) {
   )
   df_onestep_regular <- data.frame(
     psi = psi_n + mean(eic_fit),
-    std_err = sd(eic_fit),
-    ci_lower = psi_n - 1.96 * sd(eic_fit),
-    ci_upper = psi_n + 1.96 * sd(eic_fit)
+    std_err = sd(eic_fit) / sqrt(n),
+    ci_lower = psi_n - 1.96 * sd(eic_fit) / sqrt(n),
+    ci_upper = psi_n + 1.96 * sd(eic_fit) / sqrt(n)
   )
 
   eic_fit_reduced <- compute_eic(
@@ -102,9 +103,9 @@ fit_one_A <- function(W, A, Y) {
   )
   df_onestep_reduced <- data.frame(
     psi = psi_n + mean(eic_fit_reduced),
-    std_err = sd(eic_fit_reduced),
-    ci_lower = psi_n - 1.96 * sd(eic_fit_reduced),
-    ci_upper = psi_n + 1.96 * sd(eic_fit_reduced)
+    std_err = sd(eic_fit_reduced) / sqrt(n),
+    ci_lower = psi_n - 1.96 * sd(eic_fit_reduced) / sqrt(n),
+    ci_upper = psi_n + 1.96 * sd(eic_fit_reduced) / sqrt(n)
   )
 
   df_tmle_regular$method <- "tmle_regular"
