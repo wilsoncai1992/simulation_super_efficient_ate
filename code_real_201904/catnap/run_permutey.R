@@ -6,17 +6,17 @@ n_mcmc <- 1e2
 # n_mcmc <- 2
 
 library(foreach)
-# library(Rmpi)
-# library(doMPI)
-# cl = startMPIcluster()
-# registerDoMPI(cl)
-# clusterSize(cl) # just to check
+library(Rmpi)
+library(doMPI)
+cl = startMPIcluster()
+registerDoMPI(cl)
+clusterSize(cl) # just to check
 
-library(doSNOW)
-library(tcltk)
-nw <- parallel:::detectCores() # number of workers
-cl <- makeSOCKcluster(nw)
-registerDoSNOW(cl)
+# library(doSNOW)
+# library(tcltk)
+# nw <- parallel:::detectCores() # number of workers
+# cl <- makeSOCKcluster(nw)
+# registerDoSNOW(cl)
 
 df_results <- foreach(
   A_name = A_names,
@@ -65,21 +65,7 @@ df_summary <- df_results %>%
   mutate(variance = mse - bias ^ 2)
 save(df_results, df_summary, file = "permute_y.rda")
 
-snow::stopCluster(cl)
+closeCluster(cl)
+mpi.quit()
+# snow::stopCluster(cl)
 
-# for (seed in 16) {
-#   set.seed(seed)
-#   print(seed)
-#   data_train <- all_data[[A_name]]
-#   # all W are integer type
-#   W <- as.matrix(data_train$W)
-#   A <- data_train$A
-#   is_not_missing <- complete.cases(W)
-#   W <- W[is_not_missing, ]
-#   A <- A[is_not_missing]
-#   Y <- data_train$Y[is_not_missing]
-#   permute_y <-  TRUE
-#   if (permute_y) Y <- sample(Y)
-#   result <- fit_one_A(W = W, A = A, Y = Y)
-#   
-# }

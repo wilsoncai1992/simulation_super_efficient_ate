@@ -26,7 +26,7 @@ fit_one_A <- function(W, A, Y) {
   feature_reduced <- as.matrix(
     data.frame(Q1W = nuisance_fits$Q1W, Q0W = nuisance_fits$Q0W)
   )
-  if (all.equal(feature_reduced[,1], feature_reduced[,2])) {
+  if (isTRUE(all.equal(feature_reduced[,1], feature_reduced[,2]))) {
     feature_reduced <- matrix(feature_reduced[, 1])
   }
   if (min(feature_reduced) == max(feature_reduced)) {
@@ -120,7 +120,7 @@ fit_one_A <- function(W, A, Y) {
   df_result <- rbind(
     df_tmle_regular, df_tmle_reduced, df_onestep_regular, df_onestep_reduced, df_plugin
   )
-  df_result <- df_result %>% 
+  df_result <- df_result %>%
     mutate(ci_lower = psi - 1.96 * std_err, ci_upper = psi + 1.96 * std_err)
   df_result$A <- A_name
   return(df_result)

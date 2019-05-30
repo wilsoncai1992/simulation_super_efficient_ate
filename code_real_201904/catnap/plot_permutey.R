@@ -1,6 +1,8 @@
 # load("./permute_y.rda")
 load("./npbootstrap.rda")
 library(tidyverse)
+df_summary <- df_summary %>% filter(cnt >= 0.8 * max(cnt))
+
 gg_bias <- ggplot(
   df_summary %>% filter(method != "plugin"),
   aes(y = abs(bias), x = method)
@@ -40,6 +42,7 @@ ggsave(gg2, filename = 'permutey.png', width = 4, height = 6)
 
 df1 <- df_summary %>% filter(method == "onestep_regular")
 df2 <- df_summary %>% filter(method == "onestep_reduced")
+# how many times onestep_reduced beated by onestep_regular
 table(df1$mse <= df2$mse)
 
 df1[df1$mse >= df2$mse, ]
