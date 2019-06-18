@@ -6,17 +6,17 @@ n_mcmc <- 1e2
 # n_mcmc <- 2
 
 library(foreach)
-library(Rmpi)
-library(doMPI)
-cl = startMPIcluster()
-registerDoMPI(cl)
-clusterSize(cl) # just to check
+# library(Rmpi)
+# library(doMPI)
+# cl = startMPIcluster()
+# registerDoMPI(cl)
+# clusterSize(cl) # just to check
 
-# library(doSNOW)
-# library(tcltk)
-# nw <- parallel:::detectCores() # number of workers
-# cl <- makeSOCKcluster(nw)
-# registerDoSNOW(cl)
+library(doSNOW)
+library(tcltk)
+nw <- parallel:::detectCores() # number of workers
+cl <- makeSOCKcluster(nw)
+registerDoSNOW(cl)
 
 df_results <- foreach(
   A_name = A_names,
@@ -60,12 +60,13 @@ df_summary <- df_results %>%
     bias = mean(bias),
     mse = mean(mse),
     coverage = mean(is_cover),
-    cnt = length(unique(id_sim))
+    cnt = length(unique(id_sim)),
+    positivity_score = mean(positivity_score)
   ) %>%
   mutate(variance = mse - bias ^ 2)
 save(df_results, df_summary, file = "npbootstrap.rda")
 
-closeCluster(cl)
-mpi.quit()
-# snow::stopCluster(cl)
+# closeCluster(cl)
+# mpi.quit()
+snow::stopCluster(cl)
 

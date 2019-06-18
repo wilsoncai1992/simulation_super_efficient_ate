@@ -20,8 +20,11 @@ compute_eic <- function(Q1W, Q0W, G1W, Y, A, psi_n) {
   return((2 * A - 1) / G1W * (Y - Q1W + Q0W) + (mean(Q1W - Q0W) - psi_n))
 }
 
-fit_one_A <- function(W, A, Y) {
+fit_one_A <- function(W, A, Y, delta = 0.1) {
   nuisance_fits <- fit_nuisance(W = W, A = A, Y = Y)
+  propens_not_extreme <- mean(
+    (nuisance_fits$G1W >= delta) & (nuisance_fits$G1W <= (1 - delta))
+  )
 
   feature_reduced <- as.matrix(
     data.frame(Q1W = nuisance_fits$Q1W, Q0W = nuisance_fits$Q0W)
@@ -123,6 +126,7 @@ fit_one_A <- function(W, A, Y) {
   df_result <- df_result %>%
     mutate(ci_lower = psi - 1.96 * std_err, ci_upper = psi + 1.96 * std_err)
   df_result$A <- A_name
+  df_result$positivity_score <- propens_not_extreme
   return(df_result)
 }
 

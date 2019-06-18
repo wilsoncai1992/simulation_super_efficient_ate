@@ -1,7 +1,15 @@
-# load("./permute_y.rda")
-load("./npbootstrap.rda")
+library(ggpubr)
+# load("./result_permutey/permute_y.rda")
+load("./result_npboot/npbootstrap.rda")
 library(tidyverse)
-df_summary <- df_summary %>% filter(cnt >= 0.8 * max(cnt))
+# df_summary <- df_summary %>% filter(cnt >= 0.8 * max(cnt))
+df_summary <- df_summary %>% mutate(method = recode(
+    method,
+    onestep_regular = "onestep",
+    onestep_reduced = "C-onestep",
+    tmle_regular = "TMLE",
+    tmle_reduced = "CTMLE"
+  ))
 
 gg_bias <- ggplot(
   df_summary %>% filter(method != "plugin"),
@@ -9,40 +17,83 @@ gg_bias <- ggplot(
 ) +
   geom_boxplot() +
   geom_hline(yintercept = 0, lty = 3) +
+  ylab("Absolute bias") +
   # scale_y_sqrt() +
   scale_y_log10() +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+  rremove("x.text") +
+  rremove("xlab")
+
 gg_variance <- ggplot(
     df_summary %>% filter(method != "plugin"),
     aes(y = variance, x = method)
   ) +
   geom_boxplot() +
+  ylab("Variance") +
   scale_y_log10(limits = c(NA, 1e1)) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+  rremove("x.text") +
+  rremove("xlab")
 gg_mse <- ggplot(
     df_summary %>% filter(method != "plugin"),
     aes(y = mse, x = method)
   ) +
+  ylab("Mean-squared error") +
   geom_boxplot() +
+  theme_bw() +
   scale_y_log10(limits = c(NA, 1e1)) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+  rremove("xlab")
 gg_coverage <- ggplot(
     df_summary %>% filter(method != "plugin"),
     aes(y = coverage, x = method)
   ) +
   geom_boxplot() +
+  ylab("Coverage") +
+  theme_bw() +
   geom_hline(yintercept = .95, lty = 3) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+  rremove("xlab")
 
 
-library(ggpubr)
-gg1 <- ggarrange(gg_bias, gg_variance, gg_mse, align = 'v', nrow = 3)
-gg2 <- ggarrange(gg1, gg_coverage, ncol = 2)
-ggsave(gg2, filename = 'permutey.png', width = 4, height = 6)
+gg1 <- ggarrange(gg_bias, gg_variance, gg_mse, gg_coverage, align = 'v', nrow = 2, ncol = 2)
+ggsave(gg1, filename = 'permutey.png', width = 4, height = 4)
 
-df1 <- df_summary %>% filter(method == "onestep_regular")
-df2 <- df_summary %>% filter(method == "onestep_reduced")
-# how many times onestep_reduced beated by onestep_regular
-table(df1$mse <= df2$mse)
+df1 <- df_summary %>% filter(method == "onestep")
+df2 <- df_summary %>% filter(method == "C-onestep")
+df3 <- df_summary %>% filter(method == "TMLE")
+df4 <- df_summary %>% filter(method == "CTMLE")
+# how many times onestep_reduced beat onestep_regular
+# table(df1$mse >= df2$mse)
+# table(df1$variance >= df2$variance)
+# how many times tmle_reduced beat tmle_regular
+# table(df3$mse >= df4$mse)
+# table(df3$variance >= df4$variance)
 
-df1[df1$mse >= df2$mse, ]
+ratio1 <- data.frame(var_ratio = df2$variance / df1$variance, method = 'onestep', A = df2$A)
+ratio2 <- data.frame(var_ratio = df4$variance / df3$variance, method = 'TMLE', A = df4$A)
+ratios <- dplyr::bind_rows(ratio1, ratio2)
+
+ggplot(ratios, aes(x = as.factor(method), y = var_ratio)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  ylab("Relative efficiency") +
+  theme_bw()
+
+load("./smoothing/df_results_05.rda")
+ratios <- left_join(ratios, df_positivity, by = "A")
+gg_ratio <- ggplot(ratios, aes(lty = as.factor(method), pch = as.factor(method), y = var_ratio, x = positivity_score)) +
+  geom_point() +
+  geom_smooth(color = 'black') +
+  scale_y_log10() +
+  geom_hline(yintercept = 1, lty = 1) +
+  ylab("Relative efficiency") +
+  xlab(expression(P[n] (bar(G)[n] %in% (list(0.05, 0.95))))) +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  guides(lty = guide_legend(title = "Method")) +
+  guides(pch = guide_legend(title = "Method"))
+
+ggsave(gg_ratio, filename = '0.05.png', width = 4, height = 4)

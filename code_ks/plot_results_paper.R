@@ -14,20 +14,21 @@ get_df_plot <- function(df, method_to_plot, m1, m2) {
   return(df_out)
 }
 df_plot_oat1 <- get_df_plot(
-  df_mc_result, c("oat_oracle_ci", "tmle_oracle_ci"), "ctmle", "tmle"
+  df_mc_result, c("oat_oracle_ci", "tmle_oracle_ci"), "CTMLE", "TMLE"
 )
 df_plot_oat2 <- get_df_plot(
-  df_mc_result, c("oat_cv_variance", "tmle_cv_variance"), "ctmle", "tmle"
+  df_mc_result, c("oat_cv_variance", "tmle_cv_variance"), "CTMLE", "TMLE"
 )
 
 gg1 <- ggplot(
-  data = df_plot_oat1, aes(x = n, y = bias, shape = Method, lty = Method)
+  data = df_plot_oat1, aes(x = n, y = abs(bias), shape = Method, lty = Method)
 ) +
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Bias") +
+  ylab("Absolute bias") +
   # facet_grid(. ~ iv_beta) +
+  scale_y_log10() +
   theme_bw()
 gg2 <- ggplot(
   data = df_plot_oat1, aes(x = n, y = variance, shape = Method, lty = Method)
@@ -36,9 +37,10 @@ gg2 <- ggplot(
   geom_point() +
   ylab("Variance") +
   # facet_grid(. ~ iv_beta) +
+  scale_y_log10() +
   theme_bw()
 
-df_tmle <- df_plot_oat1 %>% filter(Method %in% c("tmle"))
+df_tmle <- df_plot_oat1 %>% filter(Method %in% c("TMLE"))
 df_plot <- dplyr::left_join(df_plot_oat1, df_tmle, c("n"))
 df_plot$re <- df_plot$mse.x / df_plot$mse.y
 df_plot$Method <- df_plot$Method.x
@@ -49,7 +51,6 @@ gg3 <- ggplot(
   geom_point() +
   ylab("Relative efficiency") +
   ylim(c(.1, 1.1)) +
-  # facet_grid(. ~ iv_beta) +
   theme_bw()
 gg_panel1 <- ggarrange(
   gg1,
@@ -69,7 +70,7 @@ gg_panel1 <- ggarrange(
 # )
 # df_bias_std$bias_std <- df_bias_std$bias / df_bias_std$sd_oracle
 df_plot_density <- get_df_plot(
-  df_simulation_result, c("oat_oracle_ci", "tmle_oracle_ci"), "ctmle", "tmle"
+  df_simulation_result, c("oat_oracle_ci", "tmle_oracle_ci"), "CTMLE", "TMLE"
 )
 gg4 <- ggplot(
   data = df_plot_density, aes(x = bias * sqrt(n), lty = Method)
@@ -120,19 +121,20 @@ ggsave(gg_panel2, filename = "./output/tmle_coverage.pdf", width = 4, height = 4
 
 # =============================================================================
 df_plot_oat1 <- get_df_plot(
-  df_mc_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "c-onestep", "onestep"
+  df_mc_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "C-onestep", "onestep"
 )
 df_plot_oat2 <- get_df_plot(
-  df_mc_result, c("onestep_oat_cv_variance", "onestep_cv_variance"), "c-onestep", "onestep"
+  df_mc_result, c("onestep_oat_cv_variance", "onestep_cv_variance"), "C-onestep", "onestep"
 )
 
 gg1 <- ggplot(
-  data = df_plot_oat1, aes(x = n, y = bias, shape = Method, lty = Method)
+  data = df_plot_oat1, aes(x = n, y = abs(bias), shape = Method, lty = Method)
 ) +
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Bias") +
+  ylab("Absolute bias") +
+  scale_y_log10() +
   # facet_grid(. ~ iv_beta) +
   theme_bw()
 gg2 <- ggplot(
@@ -141,6 +143,7 @@ gg2 <- ggplot(
   geom_line() +
   geom_point() +
   ylab("Variance") +
+  scale_y_log10() +
   # facet_grid(. ~ iv_beta) +
   theme_bw()
 
@@ -168,7 +171,7 @@ gg_panel1 <- ggarrange(
 )
 
 df_plot_density <- get_df_plot(
-  df_simulation_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "c-onestep", "onestep"
+  df_simulation_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "C-onestep", "onestep"
 )
 gg4 <- ggplot(
   data = df_plot_density, aes(x = bias * sqrt(n), lty = Method)

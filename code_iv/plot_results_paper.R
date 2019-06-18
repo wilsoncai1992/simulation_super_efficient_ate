@@ -21,13 +21,14 @@ df_plot_oat2 <- get_df_plot(
 )
 
 gg1 <- ggplot(
-  data = df_plot_oat1, aes(x = n, y = bias, shape = Method, lty = Method)
+  data = df_plot_oat1, aes(x = n, y = abs(bias), shape = Method, lty = Method)
 ) +
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Bias") +
+  ylab("Absolute bias") +
   facet_grid(. ~ iv_beta) +
+  scale_y_log10() +
   theme_bw()
 gg2 <- ggplot(
   data = df_plot_oat1, aes(x = n, y = variance, shape = Method, lty = Method)
@@ -36,6 +37,7 @@ gg2 <- ggplot(
   geom_point() +
   ylab("Variance") +
   facet_grid(. ~ iv_beta) +
+  scale_y_log10() +
   theme_bw()
 
 df_tmle <- df_plot_oat1 %>% filter(Method %in% c("TMLE"))
@@ -126,13 +128,14 @@ df_plot_oat2 <- get_df_plot(
 )
 
 gg1 <- ggplot(
-  data = df_plot_oat1, aes(x = n, y = bias, shape = Method, lty = Method)
+  data = df_plot_oat1, aes(x = n, y = abs(bias), shape = Method, lty = Method)
 ) +
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Bias") +
+  ylab("Absolute bias") +
   facet_grid(. ~ iv_beta) +
+  scale_y_log10() +
   theme_bw()
 gg2 <- ggplot(
   data = df_plot_oat1, aes(x = n, y = variance, shape = Method, lty = Method)
@@ -141,6 +144,7 @@ gg2 <- ggplot(
   geom_point() +
   ylab("Variance") +
   facet_grid(. ~ iv_beta) +
+  scale_y_log10() +
   theme_bw()
 
 df_tmle <- df_plot_oat1 %>% filter(Method %in% c("onestep"))
