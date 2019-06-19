@@ -6,12 +6,12 @@ library(tidyverse)
 df_summary <- df_summary %>% mutate(method =
   recode(
     method,
-    onestep_regular = "onestep",
-    onestep_reduced = "C-onestep",
+    onestep_regular = "OS",
+    onestep_reduced = "COS",
     tmle_regular = "TMLE",
     tmle_reduced = "CTMLE"
   )) %>% mutate(
-    method = factor(method, levels = c("TMLE", "CTMLE", "onestep", "C-onestep"))
+    method = factor(method, levels = c("TMLE", "CTMLE", "OS", "COS"))
   )
 
 gg_bias <- ggplot(
@@ -21,14 +21,13 @@ gg_bias <- ggplot(
   geom_boxplot() +
   geom_hline(yintercept = 0, lty = 3) +
   ylab("Absolute bias") +
-  # scale_y_sqrt() +
   scale_y_log10() +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
   rremove("x.text") +
   rremove("xlab")
 
-gg_variance <- ggplot(
+gg_variance2 <- ggplot(
     df_summary %>% filter(method != "plugin"),
     aes(y = variance, x = method)
   ) +
@@ -37,13 +36,15 @@ gg_variance <- ggplot(
   scale_y_log10(limits = c(NA, 1e1)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
-  rremove("x.text") +
   rremove("xlab")
+gg_variance <- gg_variance2 +
+  rremove("x.text")
+
 gg_mse <- ggplot(
     df_summary %>% filter(method != "plugin"),
     aes(y = mse, x = method)
   ) +
-  ylab("Mean-squared error") +
+  ylab("MSE") +
   geom_boxplot() +
   theme_bw() +
   scale_y_log10(limits = c(NA, 1e1)) +
@@ -64,8 +65,8 @@ gg_coverage <- ggplot(
 gg1 <- ggarrange(gg_bias, gg_variance, gg_mse, gg_coverage, align = 'v', nrow = 2, ncol = 2, heights = c(1, 1.3))
 ggsave(gg1, filename = 'permutey.pdf', width = 4, height = 3)
 
-df1 <- df_summary %>% filter(method == "onestep")
-df2 <- df_summary %>% filter(method == "C-onestep")
+df1 <- df_summary %>% filter(method == "OS")
+df2 <- df_summary %>% filter(method == "COS")
 df3 <- df_summary %>% filter(method == "TMLE")
 df4 <- df_summary %>% filter(method == "CTMLE")
 # how many times onestep_reduced beat onestep_regular
@@ -75,7 +76,7 @@ df4 <- df_summary %>% filter(method == "CTMLE")
 # table(df3$mse >= df4$mse)
 # table(df3$variance >= df4$variance)
 
-ratio1 <- data.frame(var_ratio = df2$variance / df1$variance, method = 'onestep', A = df2$A)
+ratio1 <- data.frame(var_ratio = df2$variance / df1$variance, method = 'OS', A = df2$A)
 ratio2 <- data.frame(var_ratio = df4$variance / df3$variance, method = 'TMLE', A = df4$A)
 ratios <- dplyr::bind_rows(ratio1, ratio2)
 
@@ -101,6 +102,6 @@ gg_ratio <- ggplot(ratios, aes(lty = method, pch = method, y = var_ratio, x = po
 ggsave(
   # gg_ratio,
   # filename = '0.05.pdf', width = 3, height = 3
-  ggarrange(gg_mse, gg_ratio, nrow = 1, ncol = 2, common.legend = TRUE, legend = "bottom", labels = "AUTO"),
+  ggarrange(gg_variance2, gg_ratio, nrow = 1, ncol = 2, common.legend = TRUE, legend = "bottom", labels = "AUTO"),
   filename = '0.05.pdf', width = 6, height = 3
 )

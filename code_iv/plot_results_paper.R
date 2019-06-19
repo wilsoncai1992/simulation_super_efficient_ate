@@ -119,10 +119,10 @@ ggsave(gg_panel2, filename = "./output/tmle_coverage.pdf", width = 4, height = 4
 
 # =============================================================================
 df_plot_oat1 <- get_df_plot(
-  df_mc_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "C-onestep", "onestep"
+  df_mc_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "COS", "OS"
 )
 df_plot_oat2 <- get_df_plot(
-  df_mc_result, c("onestep_oat_cv_variance", "onestep_cv_variance"), "C-onestep", "onestep"
+  df_mc_result, c("onestep_oat_cv_variance", "onestep_cv_variance"), "COS", "OS"
 )
 
 gg1 <- ggplot(
@@ -145,7 +145,7 @@ gg2 <- ggplot(
   scale_y_log10() +
   theme_bw()
 
-df_tmle <- df_plot_oat1 %>% filter(Method %in% c("onestep"))
+df_tmle <- df_plot_oat1 %>% filter(Method %in% c("OS"))
 df_plot <- dplyr::left_join(df_plot_oat1, df_tmle, c("n", "iv_beta"))
 df_plot$re <- df_plot$mse.x / df_plot$mse.y
 df_plot$Method <- df_plot$Method.x
@@ -169,7 +169,7 @@ gg_panel1 <- ggarrange(
 )
 
 df_plot_density <- get_df_plot(
-  df_simulation_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "C-onestep", "onestep"
+  df_simulation_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "COS", "OS"
 )
 gg4 <- ggplot(
   data = df_plot_density, aes(x = bias * sqrt(n), lty = Method)

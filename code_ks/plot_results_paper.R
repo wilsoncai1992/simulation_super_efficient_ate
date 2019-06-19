@@ -121,10 +121,10 @@ ggsave(gg_panel2, filename = "./output/tmle_coverage.pdf", width = 4, height = 4
 
 # =============================================================================
 df_plot_oat1 <- get_df_plot(
-  df_mc_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "C-onestep", "onestep"
+  df_mc_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "COS", "OS"
 )
 df_plot_oat2 <- get_df_plot(
-  df_mc_result, c("onestep_oat_cv_variance", "onestep_cv_variance"), "C-onestep", "onestep"
+  df_mc_result, c("onestep_oat_cv_variance", "onestep_cv_variance"), "COS", "OS"
 )
 
 gg1 <- ggplot(
@@ -171,7 +171,7 @@ gg_panel1 <- ggarrange(
 )
 
 df_plot_density <- get_df_plot(
-  df_simulation_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "C-onestep", "onestep"
+  df_simulation_result, c("onestep_oat_oracle_ci", "onestep_oracle_ci"), "COS", "OS"
 )
 gg4 <- ggplot(
   data = df_plot_density, aes(x = bias * sqrt(n), lty = Method)
