@@ -3,13 +3,16 @@ library(ggpubr)
 load("./result_npboot/npbootstrap.rda")
 library(tidyverse)
 # df_summary <- df_summary %>% filter(cnt >= 0.8 * max(cnt))
-df_summary <- df_summary %>% mutate(method = recode(
+df_summary <- df_summary %>% mutate(method =
+  recode(
     method,
     onestep_regular = "onestep",
     onestep_reduced = "C-onestep",
     tmle_regular = "TMLE",
     tmle_reduced = "CTMLE"
-  ))
+  )) %>% mutate(
+    method = factor(method, levels = c("TMLE", "CTMLE", "onestep", "C-onestep"))
+  )
 
 gg_bias <- ggplot(
   df_summary %>% filter(method != "plugin"),
@@ -58,8 +61,8 @@ gg_coverage <- ggplot(
   rremove("xlab")
 
 
-gg1 <- ggarrange(gg_bias, gg_variance, gg_mse, gg_coverage, align = 'v', nrow = 2, ncol = 2)
-ggsave(gg1, filename = 'permutey.png', width = 4, height = 4)
+gg1 <- ggarrange(gg_bias, gg_variance, gg_mse, gg_coverage, align = 'v', nrow = 2, ncol = 2, heights = c(1, 1.3))
+ggsave(gg1, filename = 'permutey.pdf', width = 4, height = 3)
 
 df1 <- df_summary %>% filter(method == "onestep")
 df2 <- df_summary %>% filter(method == "C-onestep")
@@ -76,7 +79,7 @@ ratio1 <- data.frame(var_ratio = df2$variance / df1$variance, method = 'onestep'
 ratio2 <- data.frame(var_ratio = df4$variance / df3$variance, method = 'TMLE', A = df4$A)
 ratios <- dplyr::bind_rows(ratio1, ratio2)
 
-ggplot(ratios, aes(x = as.factor(method), y = var_ratio)) +
+ggplot(ratios, aes(x = method, y = var_ratio)) +
   geom_boxplot() +
   scale_y_log10() +
   ylab("Relative efficiency") +
@@ -84,7 +87,7 @@ ggplot(ratios, aes(x = as.factor(method), y = var_ratio)) +
 
 load("./smoothing/df_results_05.rda")
 ratios <- left_join(ratios, df_positivity, by = "A")
-gg_ratio <- ggplot(ratios, aes(lty = as.factor(method), pch = as.factor(method), y = var_ratio, x = positivity_score)) +
+gg_ratio <- ggplot(ratios, aes(lty = method, pch = method, y = var_ratio, x = positivity_score)) +
   geom_point() +
   geom_smooth(color = 'black') +
   scale_y_log10() +
@@ -95,5 +98,9 @@ gg_ratio <- ggplot(ratios, aes(lty = as.factor(method), pch = as.factor(method),
   theme(legend.position = "bottom") +
   guides(lty = guide_legend(title = "Method")) +
   guides(pch = guide_legend(title = "Method"))
-
-ggsave(gg_ratio, filename = '0.05.png', width = 4, height = 4)
+ggsave(
+  # gg_ratio,
+  # filename = '0.05.pdf', width = 3, height = 3
+  ggarrange(gg_mse, gg_ratio, nrow = 1, ncol = 2, common.legend = TRUE, legend = "bottom", labels = "AUTO"),
+  filename = '0.05.pdf', width = 6, height = 3
+)

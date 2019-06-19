@@ -92,7 +92,6 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/tmle_panel.pdf", width = 12, height = 6.75)
-# ggsave(gg_panel2, filename = "./output/tmle_panel.png", width = 12, height = 6.75)
 
 plot_coverage <- function(df) {
   ggplot(
@@ -117,7 +116,6 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/tmle_coverage.pdf", width = 4, height = 4)
-# ggsave(gg_panel2, filename = "./output/tmle_coverage.png", width = 4, height = 4)
 
 # =============================================================================
 df_plot_oat1 <- get_df_plot(
@@ -192,7 +190,6 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/onestep_panel.pdf", width = 12, height = 6.75)
-# ggsave(gg_panel2, filename = "./output/onestep_panel.png", width = 12, height = 6.75)
 
 gg01 <- plot_coverage(df_plot_oat1)
 gg02 <- plot_coverage(df_plot_oat2)
@@ -205,4 +202,3 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/onestep_coverage.pdf", width = 4, height = 4)
-# ggsave(gg_panel2, filename = "./output/onestep_coverage.png", width = 4, height = 4)
