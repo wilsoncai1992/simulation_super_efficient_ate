@@ -58,7 +58,7 @@ fit_one_A <- function(W, A, Y, delta = 0.1) {
     W = W,
     Q = as.matrix(data.frame(nuisance_fits$Q0W, nuisance_fits$Q1W)),
     g1W = nuisance_fits$G1W,
-    gbound = 1e-4,
+    gbound = 1e-2,
     family = 'binomial'
   )
   tmle_reduced <- tmle::tmle(
@@ -67,7 +67,7 @@ fit_one_A <- function(W, A, Y, delta = 0.1) {
     W = W,
     Q = as.matrix(data.frame(nuisance_fits$Q0W, nuisance_fits$Q1W)),
     g1W = nuisance_fits$G1W_reduced,
-    gbound = 1e-4,
+    gbound = 1e-2,
     family = 'binomial'
   )
   df_tmle_regular <- data.frame(

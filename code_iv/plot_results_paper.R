@@ -26,7 +26,7 @@ gg1 <- ggplot(
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Absolute bias") +
+  ylab("Absolute bias (log-scale)") +
   facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()
@@ -35,7 +35,7 @@ gg2 <- ggplot(
 ) +
   geom_line() +
   geom_point() +
-  ylab("Variance") +
+  ylab("Variance (log-scale)") +
   facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()
@@ -131,7 +131,7 @@ gg1 <- ggplot(
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Absolute bias") +
+  ylab("Absolute bias (log-scale)") +
   facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()
@@ -140,7 +140,7 @@ gg2 <- ggplot(
 ) +
   geom_line() +
   geom_point() +
-  ylab("Variance") +
+  ylab("Variance (log-scale)") +
   facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()

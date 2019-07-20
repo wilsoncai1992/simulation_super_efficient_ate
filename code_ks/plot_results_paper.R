@@ -26,7 +26,7 @@ gg1 <- ggplot(
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Absolute bias") +
+  ylab("Absolute bias (log-scale)") +
   # facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()
@@ -35,7 +35,7 @@ gg2 <- ggplot(
 ) +
   geom_line() +
   geom_point() +
-  ylab("Variance") +
+  ylab("Variance (log-scale)") +
   # facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()
@@ -133,7 +133,7 @@ gg1 <- ggplot(
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
-  ylab("Absolute bias") +
+  ylab("Absolute bias (log-scale)") +
   scale_y_log10() +
   # facet_grid(. ~ iv_beta) +
   theme_bw()
@@ -142,12 +142,12 @@ gg2 <- ggplot(
 ) +
   geom_line() +
   geom_point() +
-  ylab("Variance") +
+  ylab("Variance (log-scale)") +
   scale_y_log10() +
   # facet_grid(. ~ iv_beta) +
   theme_bw()
 
-df_tmle <- df_plot_oat1 %>% filter(Method %in% c("onestep"))
+df_tmle <- df_plot_oat1 %>% filter(Method %in% c("OS"))
 df_plot <- dplyr::left_join(df_plot_oat1, df_tmle, c("n"))
 df_plot$re <- df_plot$mse.x / df_plot$mse.y
 df_plot$Method <- df_plot$Method.x
