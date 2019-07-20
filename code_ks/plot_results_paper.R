@@ -27,7 +27,6 @@ gg1 <- ggplot(
   geom_point() +
   geom_hline(yintercept = 0, lty = 3) +
   ylab("Absolute bias (log-scale)") +
-  # facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()
 gg2 <- ggplot(
@@ -36,7 +35,6 @@ gg2 <- ggplot(
   geom_line() +
   geom_point() +
   ylab("Variance (log-scale)") +
-  # facet_grid(. ~ iv_beta) +
   scale_y_log10() +
   theme_bw()
 
@@ -92,7 +90,6 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/tmle_panel.pdf", width = 12, height = 6.75)
-# ggsave(gg_panel2, filename = "./output/tmle_panel.png", width = 12, height = 6.75)
 
 plot_coverage <- function(df) {
   ggplot(
@@ -103,7 +100,6 @@ plot_coverage <- function(df) {
     geom_hline(yintercept = .95, lty = 3) +
     ylab("Coverage") +
     ylim(c(.8, 1)) +
-    # facet_grid(. ~ iv_beta) +
     theme_bw()
 }
 gg01 <- plot_coverage(df_plot_oat1)
@@ -117,7 +113,6 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/tmle_coverage.pdf", width = 4, height = 4)
-# ggsave(gg_panel2, filename = "./output/tmle_coverage.png", width = 4, height = 4)
 
 # =============================================================================
 df_plot_oat1 <- get_df_plot(
@@ -135,7 +130,6 @@ gg1 <- ggplot(
   geom_hline(yintercept = 0, lty = 3) +
   ylab("Absolute bias (log-scale)") +
   scale_y_log10() +
-  # facet_grid(. ~ iv_beta) +
   theme_bw()
 gg2 <- ggplot(
   data = df_plot_oat1, aes(x = n, y = variance, shape = Method, lty = Method)
@@ -144,7 +138,6 @@ gg2 <- ggplot(
   geom_point() +
   ylab("Variance (log-scale)") +
   scale_y_log10() +
-  # facet_grid(. ~ iv_beta) +
   theme_bw()
 
 df_tmle <- df_plot_oat1 %>% filter(Method %in% c("OS"))
@@ -158,7 +151,6 @@ gg3 <- ggplot(
   geom_point() +
   ylab("Relative efficiency") +
   ylim(c(.1, 1.1)) +
-  # facet_grid(. ~ iv_beta) +
   theme_bw()
 gg_panel1 <- ggarrange(
   gg1,
@@ -192,7 +184,6 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/onestep_panel.pdf", width = 12, height = 6.75)
-# ggsave(gg_panel2, filename = "./output/onestep_panel.png", width = 12, height = 6.75)
 
 gg01 <- plot_coverage(df_plot_oat1)
 gg02 <- plot_coverage(df_plot_oat2)
@@ -205,4 +196,3 @@ gg_panel2 <- ggarrange(
   legend = "bottom"
 )
 ggsave(gg_panel2, filename = "./output/onestep_coverage.pdf", width = 4, height = 4)
-# ggsave(gg_panel2, filename = "./output/onestep_coverage.png", width = 4, height = 4)
